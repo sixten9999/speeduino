@@ -577,6 +577,9 @@ extern volatile unsigned long ms_counter; //A counter that increments once per m
 extern uint16_t fixedCrankingOverride;
 extern bool clutchTrigger;
 extern bool previousClutchTrigger;
+extern bool ATFS_previousShiftState;
+extern bool ATFS_shiftState;
+extern uint16_t ATFS_shift_engaged_RPM;
 extern volatile uint32_t toothHistory[TOOTH_LOG_SIZE];
 extern volatile uint8_t compositeLogHistory[TOOTH_LOG_SIZE];
 extern volatile bool fpPrimed; //Tracks whether or not the fuel pump priming has been completed yet
@@ -1155,7 +1158,7 @@ struct config9 {
   byte iacCoolTime : 3; // how long to wait for the stepper to cool between steps
 
   byte boostByGearEnabled : 2;
-
+  
   byte iacMaxSteps; // Step limit beyond which the stepper won't be driven. Should always be less than homing steps. Stored div 3 as per home steps.
   byte idleAdvStartDelay;     //delay for idle advance engage
   
@@ -1170,14 +1173,14 @@ struct config9 {
   byte hardRevMode : 2;
   byte coolantProtRPM[6];
   byte coolantProtTemp[6];
-  byte unused10_179;
-  byte unused10_180;
-  byte unused10_181;
-  byte unused10_182;
-  byte unused10_183;
-  byte unused10_184;
-  byte unused10_185;
-  byte unused10_186;
+  byte ATFS_enable : 1; //Previously was VVTasOnOff
+  uint8_t ATFS_RPM_MIN;
+  uint8_t ATFS_RPM_MAX;
+  int8_t ATFS_adv_when_min;
+  int8_t ATFS_adv_when_max;
+  uint8_t ATFS_TPS_th;
+  uint8_t ATFS_MAP_th;
+  int8_t ATFS_RPM_drop;
   byte unused10_187;
   byte unused10_188;
   byte unused10_189;

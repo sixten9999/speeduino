@@ -37,6 +37,7 @@ int8_t correctionIdleAdvance(int8_t);
 int8_t correctionSoftRevLimit(int8_t);
 int8_t correctionNitrous(int8_t);
 int8_t correctionSoftLaunch(int8_t);
+int8_t correctionATFlatShift(int8_t);
 int8_t correctionSoftFlatShift(int8_t);
 int8_t correctionKnock(int8_t);
 

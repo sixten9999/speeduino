@@ -121,36 +121,15 @@ void loop(void)
 
       //SERIAL Comms
       //Initially check that the last serial send values request is not still outstanding
-      if (serialInProgress == true) 
-      { 
-        if(Serial.availableForWrite() > 16) { sendValues(inProgressOffset, inProgressLength, 0x30, 0); }
-      }
-      //Perform the same check for the tooth and composite logs
-      if( toothLogSendInProgress == true)
+      if (serialTransmitInProgress())
       {
-        if(Serial.availableForWrite() > 16) 
-        { 
-          if(legacySerial == true) { sendToothLog_legacy(inProgressOffset); }
-          else { sendToothLog(inProgressOffset); }
-        }
-      }
-      if( compositeLogSendInProgress == true)
-      {
-        if(Serial.availableForWrite() > 16) { sendCompositeLog(inProgressOffset); }
-      }
-      if(serialWriteInProgress == true)
-      {
-        if(Serial.availableForWrite() > 16) { continueSerialTransmission(); }
+        serialTransmit();
       }
 
-      //Check for any new requests from serial.
-      //if ( (Serial.available()) > 0) { command(); }
-      if ( (Serial.available()) > 0) { parseSerial(); }
-      
-      else if(cmdPending == true)
+      //Check for any new or in-progress requests from serial.
+      if (Serial.available()>0 || serialRecieveInProgress())
       {
-        //This is a special case just for the tooth and composite loggers
-        if (currentCommand == 'T') { legacySerialCommand(); }
+        serialReceive();
       }
 
       //Check for any CAN comms requiring action 
@@ -233,9 +212,12 @@ void loop(void)
       //This should only be run if the high speed logger are off because it will change the trigger interrupts back to defaults rather than the logger versions
       if( (currentStatus.toothLogEnabled == false) && (currentStatus.compositeLogEnabled == false) ) { initialiseTriggers(); }
 
+      no_AVR_Interrupts();
       VVT1_PIN_LOW();
       VVT2_PIN_LOW();
       DISABLE_VVT_TIMER();
+      AVR_interrupts();
+      
       boostDisable();
       if(configPage4.ignBypassEnabled > 0) { digitalWrite(pinIgnBypass, LOW); } //Reset the ignition bypass ready for next crank attempt
     }
@@ -301,8 +283,6 @@ void loop(void)
       // Air conditioning control
       airConControl();
 
-      //if( (isEepromWritePending() == true) && (serialReceivePending == false) && (micros() > deferEEPROMWritesUntil)) { writeAllConfig(); } //Used for slower EEPROM writes (Currently this runs in the 30Hz block)
-      
       currentStatus.vss = getSpeed();
       currentStatus.gear = getGear();
 
@@ -334,7 +314,7 @@ void loop(void)
       #endif
 
       //Check for any outstanding EEPROM writes.
-      if( (isEepromWritePending() == true) && (serialReceivePending == false) && (micros() > deferEEPROMWritesUntil)) { writeAllConfig(); } 
+      if( (isEepromWritePending() == true) && (serialStatusFlag == SERIAL_INACTIVE) && (micros() > deferEEPROMWritesUntil)) { writeAllConfig(); } 
     }
     if (BIT_CHECK(LOOP_TIMER, BIT_TIMER_4HZ))
     {
@@ -555,7 +535,7 @@ void loop(void)
         {
           uint32_t tempPW3 = (((unsigned long)currentStatus.PW1 * staged_req_fuel_mult_sec) / 100); //This is ONLY needed in in table mode. Auto mode only calculates the difference.
 
-          byte stagingSplit = get3DTableValue(&stagingTable, currentStatus.MAP, currentStatus.RPM);
+          byte stagingSplit = get3DTableValue(&stagingTable, currentStatus.fuelLoad, currentStatus.RPM);
           currentStatus.PW1 = ((100 - stagingSplit) * tempPW1) / 100;
           currentStatus.PW1 += inj_opentime_uS; 
 
@@ -912,7 +892,7 @@ void loop(void)
         |------------------------------------------------------------------------------------------
         */
 #if INJ_CHANNELS >= 2
-        if( (channel2InjEnabled) && (currentStatus.PW2 >= inj_opentime_uS) )
+        if( (BIT_CHECK(channelInjEnabled, INJ2_CMD_BIT) == true) && (currentStatus.PW2 >= inj_opentime_uS) )
         {
           tempCrankAngle = crankAngle - channel2InjDegrees;
           if( tempCrankAngle < 0) { tempCrankAngle += CRANK_ANGLE_MAX_INJ; }
@@ -930,7 +910,7 @@ void loop(void)
 #endif
 
 #if INJ_CHANNELS >= 3
-        if( (channel3InjEnabled) && (currentStatus.PW3 >= inj_opentime_uS) )
+        if( (BIT_CHECK(channelInjEnabled, INJ3_CMD_BIT) == true) && (currentStatus.PW3 >= inj_opentime_uS) )
         {
           tempCrankAngle = crankAngle - channel3InjDegrees;
           if( tempCrankAngle < 0) { tempCrankAngle += CRANK_ANGLE_MAX_INJ; }
@@ -948,7 +928,7 @@ void loop(void)
 #endif
 
 #if INJ_CHANNELS >= 4
-        if( (channel4InjEnabled) && (currentStatus.PW4 >= inj_opentime_uS) )
+        if( (BIT_CHECK(channelInjEnabled, INJ4_CMD_BIT) == true) && (currentStatus.PW4 >= inj_opentime_uS) )
         {
           tempCrankAngle = crankAngle - channel4InjDegrees;
           if( tempCrankAngle < 0) { tempCrankAngle += CRANK_ANGLE_MAX_INJ; }
@@ -966,7 +946,7 @@ void loop(void)
 #endif
 
 #if INJ_CHANNELS >= 5
-        if( (channel5InjEnabled) && (currentStatus.PW5 >= inj_opentime_uS) )
+        if( (BIT_CHECK(channelInjEnabled, INJ5_CMD_BIT) == true) && (currentStatus.PW5 >= inj_opentime_uS) )
         {
           tempCrankAngle = crankAngle - channel5InjDegrees;
           if( tempCrankAngle < 0) { tempCrankAngle += CRANK_ANGLE_MAX_INJ; }
@@ -992,7 +972,7 @@ void loop(void)
 #endif
 
 #if INJ_CHANNELS >= 6
-        if( (channel6InjEnabled) && (currentStatus.PW6 >= inj_opentime_uS) )
+        if( (BIT_CHECK(channelInjEnabled, INJ6_CMD_BIT) == true) && (currentStatus.PW6 >= inj_opentime_uS) )
         {
           tempCrankAngle = crankAngle - channel6InjDegrees;
           if( tempCrankAngle < 0) { tempCrankAngle += CRANK_ANGLE_MAX_INJ; }
@@ -1010,7 +990,7 @@ void loop(void)
 #endif
 
 #if INJ_CHANNELS >= 7
-        if( (channel7InjEnabled) && (currentStatus.PW7 >= inj_opentime_uS) )
+        if( (BIT_CHECK(channelInjEnabled, INJ7_CMD_BIT) == true) && (currentStatus.PW7 >= inj_opentime_uS) )
         {
           tempCrankAngle = crankAngle - channel7InjDegrees;
           if( tempCrankAngle < 0) { tempCrankAngle += CRANK_ANGLE_MAX_INJ; }
@@ -1028,7 +1008,7 @@ void loop(void)
 #endif
 
 #if INJ_CHANNELS >= 8
-        if( (channel8InjEnabled) && (currentStatus.PW8 >= inj_opentime_uS) )
+        if( (BIT_CHECK(channelInjEnabled, INJ8_CMD_BIT) == true) && (currentStatus.PW8 >= inj_opentime_uS) )
         {
           tempCrankAngle = crankAngle - channel8InjDegrees;
           if( tempCrankAngle < 0) { tempCrankAngle += CRANK_ANGLE_MAX_INJ; }
@@ -1361,11 +1341,16 @@ uint16_t PW(int REQ_FUEL, byte VE, long MAP, uint16_t corrections, int injOpen)
   {
     //If intermediate is not 0, we need to add the opening time (0 typically indicates that one of the full fuel cuts is active)
     intermediate += injOpen; //Add the injector opening time
-    //AE Adds % of req_fuel
-    if ( configPage2.aeApplyMode == AE_MODE_ADDER )
+    //AE calculation only when ACC is active.
+    if ( BIT_CHECK(currentStatus.engine, BIT_ENGINE_ACC) )
     {
-      intermediate += ( ((unsigned long)REQ_FUEL) * (currentStatus.AEamount - 100) ) / 100;
+      //AE Adds % of req_fuel
+      if ( configPage2.aeApplyMode == AE_MODE_ADDER )
+        {
+          intermediate += ( ((unsigned long)REQ_FUEL) * (currentStatus.AEamount - 100) ) / 100;
+        }
     }
+
     if ( intermediate > 65535)
     {
       intermediate = 65535;  //Make sure this won't overflow when we convert to uInt. This means the maximum pulsewidth possible is 65.535mS

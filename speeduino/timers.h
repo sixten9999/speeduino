@@ -22,12 +22,23 @@ Hence we will preload the timer with 131 cycles to leave 125 until overflow (1ms
 #define SET_COMPARE(compare, value) compare = (COMPARE_TYPE)(value) // It is important that we cast this to the actual overflow limit of the timer. The compare variables type can be bigger than the timer overflow.
 
 volatile bool tachoAlt = false;
+#if(defined(CORE_TEENSY) || defined(CORE_STM32))
+#define TACHO_PULSE_HIGH()  digitalWrite(pinTachOut, HIGH)
+#define TACHO_PULSE_LOW()   digitalWrite(pinTachOut, LOW)
+#else
 #define TACHO_PULSE_HIGH() *tach_pin_port |= (tach_pin_mask)
 #define TACHO_PULSE_LOW() *tach_pin_port &= ~(tach_pin_mask)
+#endif
 enum TachoOutputStatus {TACHO_INACTIVE, READY, ACTIVE}; //The 3 statuses that the tacho output pulse can have. NOTE: Cannot just use 'INACTIVE' as this is already defined within the Teensy Libs
 
 volatile uint8_t tachoEndTime; //The time (in ms) that the tacho pulse needs to end at
 volatile TachoOutputStatus tachoOutputFlag;
+volatile bool tachoSweepEnabled;
+volatile uint16_t tachoSweepIncr;
+volatile uint16_t tachoSweepAccum;
+#define TACHO_SWEEP_TIME_MS 1500
+#define TACHO_SWEEP_RAMP_MS (TACHO_SWEEP_TIME_MS * 2 / 3)
+#define MS_PER_SEC  1000
 
 volatile byte loop33ms;
 volatile byte loop66ms;

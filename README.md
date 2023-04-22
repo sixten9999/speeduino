@@ -2,7 +2,7 @@
 
 <img src="https://github.com/speeduino/wiki.js/raw/master/img/Speeduino%20logo_med.png" alt="Speeduino" width="600" />
 
-[![Release](https://img.shields.io/github/release/noisymime/speeduino.svg)](https://github.com/noisymime/speeduino/releases/latest)
+[![Release](https://img.shields.io/github/release/noisymime/speeduino.svg)](https://github.com/sixten9999/speeduino/releases/latest)
 [![License](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://github.com/noisymime/speeduino/blob/master/LICENSE)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/noisymime/speeduino/build-firmware.yml?label=Build%20Status&branch=master)](https://github.com/noisymime/speeduino/actions/workflows/build-firmware.yml)
 [![Unit Tests](https://img.shields.io/github/actions/workflow/status/noisymime/speeduino/unit-tests.yml?label=Unit%20Tests&branch=master)](https://github.com/noisymime/speeduino/actions/workflows/unit-tests.yml)

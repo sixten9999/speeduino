@@ -131,7 +131,7 @@ void legacySerialCommand(void)
       break;
 
     case 'F': // send serial protocol version
-      Serial.print(F("002"));
+      Serial.print(F("001"));
       break;
 
     //The G/g commands are used for bulk reading and writing to the EEPROM directly. This is typically a non-user feature but will be incorporated into SpeedyLoader for anyone programming many boards at once
@@ -267,7 +267,7 @@ void legacySerialCommand(void)
 
     case 'Q': // send code version
       //Serial.print(F("speeduino 202207"));
-      Serial.print(F("speeduino 202210-dev"));
+      Serial.print(F("Speeduino 202304 sixlar1"));
       break;
 
     case 'r': //New format for the optimised OutputChannels
@@ -300,7 +300,7 @@ void legacySerialCommand(void)
 
     case 'S': // send code version
       //Serial.print(F("Speeduino 2022.07"));
-      Serial.print(F("Speeduino 2022.10-dev"));
+      Serial.print(F("Speeduino 202304 sixlar1"));
       currentStatus.secl = 0; //This is required in TS3 due to its stricter timings
       break;
 

@@ -94,13 +94,9 @@ void initialiseAll(void)
       } 
     }
     #endif
-  
-    // Unit tests should be independent of any stored configuration on the board!
-#if !defined(UNIT_TEST)
+    
     loadConfig();
     doUpdates(); //Check if any data items need updating (Occurs with firmware updates)
-#endif
-
 
     //Always start with a clean slate on the bootloader capabilities level
     //This should be 0 until we hear otherwise from the 16u2
@@ -114,7 +110,6 @@ void initialiseAll(void)
   #endif
 
     Serial.begin(115200);
-    BIT_SET(currentStatus.status4, BIT_STATUS4_ALLOW_LEGACY_COMMS); //Flag legacy comms as being allowed on startip
     #if defined(CANSerial_AVAILABLE)
       if (configPage9.enable_secondarySerial == 1) { CANSerial.begin(115200); }
     #endif
@@ -1839,6 +1834,130 @@ void setPinMapping(byte boardID)
     #endif
       break;
 
+      case 11:
+      #if defined(CORE_AVR)
+      //This is the regular MEGA2560 pin mapping
+      pinInjector1 = 8; //Output pin injector 1
+      pinInjector2 = 9; //Output pin injector 2
+      pinInjector3 = 10; //Output pin injector 3
+      pinInjector4 = 11; //Output pin injector 4
+      pinCoil1 = 40; //Pin for coil 1
+      pinCoil2 = 38; //Pin for coil 2
+      pinCoil3 = 52; //Pin for coil 3
+      pinCoil4 = 48; //Pin for coil 4
+      pinTrigger = 19; //The CAS pin
+      pinTrigger2 = 18; //The Cam Sensor pin
+      pinTrigger3 = 20; //The Cam sensor 2 pin
+      pinTPS = A2;//TPS input pin
+      pinMAP = A3; //MAP sensor pin
+      pinEMAP = A15; //EMAP sensor pin
+      pinIAT = A0; //IAT sensor pin
+      pinCLT = A1; //CLT sensor pin
+      pinO2 = A8; //O2 Sensor pin
+      pinBat = A4; //Battery reference voltage pin
+      pinBaro = A5; //Baro sensor pin
+      pinDisplayReset = 41; // OLED reset pin
+      pinTachOut = 49; //Tacho output pin  (Goes to ULN2003)
+      pinIdle1 = 5; //ICV pin1
+      pinIdle2 = 6; //ICV pin3
+      pinBoost = 7; //Boost control
+      pinVVT_1 = 4; //VVT1 output (intake vanos)
+      pinVVT_2 = 26; //VVT2 output (exhaust vanos)
+      pinFuelPump = 45; //Fuel pump output  (Goes to ULN2003)
+      pinStepperDir = 16; //Stepper valve isn't used with these
+      pinStepperStep = 17; //Stepper valve isn't used with these
+      pinStepperEnable = 24; //Stepper valve isn't used with these
+      pinFan = 47; //Pin for the fan output (Goes to ULN2003)
+      pinLaunch = 51; //Launch control pin
+      pinFlex = 2; // Flex sensor
+      pinResetControl = 43; //Reset control output
+      pinVSS = 3; //VSS input pin
+      pinWMIEmpty = 31; //(placeholder)
+      pinWMIIndicator = 33; //(placeholder)
+      pinWMIEnabled = 35; //(placeholder)
+      pinIdleUp = 37; //(placeholder)
+      pinCTPS = A6; //(placeholder)
+#elif defined(ARDUINO_BLACKPILL_F401xx) || defined(ARDUINO_BLACKPILL_F411xx)
+      //Pin mappings as per the f401 shield
+        //https://github.com/stm32duino/Arduino_Core_STM32/blob/master/variants/Generic_F411Cx/variant.h#L28
+        //pins PA12, PA11 are used for USB or CAN couldn't be used for GPIO
+        //pins PB12, PB13, PB14 and PB15 are used to SPI FLASH
+        //PB2 can't be used as input because it's the BOOT pin
+        pinInjector1 = PB4; //Output pin injector 1 is on
+        pinInjector2 = PB5; //Output pin injector 2 is on
+        pinInjector3 = PB6; //Output pin injector 3 is on
+        pinInjector4 = PB7; //Output pin injector 4 is on
+       // pinInjector5 = PA8; //Output pin injector 5 is on
+        pinCoil1 = PB9; //Pin for coil 1
+        pinCoil2 = PB8; //Pin for coil 2
+        pinCoil3 = PB3; //Pin for coil 3
+        pinCoil4 = PA15; //Pin for coil 4
+        pinCoil5 = PB10; //Pin for coil 5
+        pinTPS = A0;//TPS input pin
+        pinMAP = A1; //MAP sensor pin
+        pinIAT = A2; //IAT sensor pin
+        pinCLT = A3; //CLS sensor pin
+        pinO2 = A4; //O2 Sensor pin
+        pinBat = A5; //Battery reference voltage pin
+        pinBaro = A6;
+        pinTachOut = PB0; //Tacho output pin  (Goes to ULN2803)
+        pinIdle1 = PB1; //Single wire idle control
+        pinBoost = PA10; //Boost control
+        pinVVT_1 = PA8; //Default VVT output
+        pinFuelPump = PA13; //Fuel pump output
+        pinFan = PB2; //Pin for the fan output (Goes to ULN2803)
+        pinLaunch = PA14; //Can be overwritten below
+        //external interrupt enabled pins
+        pinVSS = PC13; // Flex sensor (Must be external interrupt enabled)
+        pinTrigger = PC14; //The CAS pin also led pin so bad idea
+        pinTrigger2 = PC15; //The Cam Sensor pin
+       
+             #elif defined(STM32F407xx)
+      pinInjector1 = PB15; //Output pin injector 1
+      pinInjector2 = PB14; //Output pin injector 2
+      pinInjector3 = PB12; //Output pin injector 3
+      pinInjector4 = PB13; //Output pin injector 4
+      pinInjector5 = PA8; //Output pin injector 5
+      pinInjector6 = PE7; //Output pin injector 6
+      pinInjector7 = PE13; //Output pin injector 7 (placeholder)
+      pinInjector8 = PE10; //Output pin injector 8 (placeholder)
+      pinCoil1 = PE2; //Pin for coil 1
+      pinCoil2 = PE3; //Pin for coil 2
+      pinCoil3 = PC13; //Pin for coil 3
+      pinCoil4 = PE6; //Pin for coil 4
+      pinCoil5 = PE4; //Pin for coil 5
+      pinCoil6 = PE5; //Pin for coil 6
+      pinCoil7 = PE0; //Pin for coil 7 (placeholder)
+      pinCoil8 = PB9; //Pin for coil 8 (placeholder)
+      pinTrigger = PD3; //The CAS pin
+      pinTrigger2 = PD4; //The Cam Sensor pin
+      pinTPS = PA0;//TPS input pin
+      pinMAP = PA1; //MAP sensor pin
+      pinIAT = PA2; //IAT sensor pin
+      pinCLT = PA3; //CLS sensor pin
+      pinO2 = PA4; //O2 Sensor pin
+      pinBat = PA5; //Battery reference voltage pin
+      pinBaro = PA6; //Baro sensor pin
+      pinDisplayReset = PE12; // OLED reset pin
+      pinTachOut = PE8; //Tacho output pin  (Goes to ULN2003)
+      pinIdle1 = PD10; //ICV pin1
+      pinIdle2 = PD9; //ICV pin3
+      pinBoost = PD8; //Boost control
+      pinVVT_1 = PD11; //VVT1 output (intake vanos)
+      pinVVT_2 = PC7; //VVT2 output (exhaust vanos)
+      pinFuelPump = PE11; //Fuel pump output  (Goes to ULN2003)
+      pinStepperDir = PB10; //Stepper valve isn't used with these
+      pinStepperStep = PB11; //Stepper valve isn't used with these
+      pinStepperEnable = PA15; //Stepper valve isn't used with these
+      pinFan = PE9; //Pin for the fan output (Goes to ULN2003)
+      pinLaunch = PB8; //Launch control pin
+      pinFlex = PD7; // Flex sensor
+      pinResetControl = PB7; //Reset control output
+      pinVSS = PB6; //VSS input pinpinIdleUp = PE14; //(placeholder)
+     #endif
+
+      break;
+
     case 20:
     #if defined(CORE_AVR) && !defined(SMALL_FLASH_MODE) //No support for bluepill here anyway
       //Pin mappings as per the Plazomat In/Out shields Rev 0.1
@@ -3470,26 +3589,6 @@ void initialiseTriggers(void)
       attachInterrupt(triggerInterrupt2, triggerSecondaryHandler, secondaryTriggerEdge);
 
       break;
-	  
-	case DECODER_ROVERMEMS:
-      //Rover MEMs - covers multiple flywheel trigger combinations.
-      triggerSetup_RoverMEMS();
-      triggerHandler = triggerPri_RoverMEMS;
-      getRPM = getRPM_RoverMEMS;
-      triggerSetEndTeeth = triggerSetEndTeeth_RoverMEMS;
-            
-      triggerSecondaryHandler = triggerSec_RoverMEMS; 
-      getCrankAngle = getCrankAngle_missingTooth;   
-
-      if(configPage4.TrigEdge == 0) { primaryTriggerEdge = RISING; } // Attach the crank trigger wheel interrupt (Hall sensor drags to ground when triggering)
-      else { primaryTriggerEdge = FALLING; }
-      if(configPage4.TrigEdgeSec == 0) { secondaryTriggerEdge = RISING; }
-      else { secondaryTriggerEdge = FALLING; }
-      
-      attachInterrupt(triggerInterrupt, triggerHandler, primaryTriggerEdge);
-      attachInterrupt(triggerInterrupt2, triggerSecondaryHandler, secondaryTriggerEdge);
-      break;   
-	  
 
     case DECODER_DRZ400:
       triggerSetup_DRZ400();
@@ -3544,7 +3643,7 @@ void initialiseTriggers(void)
       
       attachInterrupt(triggerInterrupt, triggerHandler, CHANGE); //Hardcoded change, the primaryTriggerEdge will be used in the decoder to select if it`s an inverted or non-inverted signal.
       break;
-
+      
     case DECODER_RENIX:
       //Renault 44 tooth decoder
       triggerSetup_Renix();

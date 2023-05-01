@@ -28,6 +28,7 @@
 #include "table2d.h"
 #include "table3d.h"
 #include <assert.h>
+#include "logger.h"
 #include "src/FastCRC/FastCRC.h"
 
 #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__)
@@ -83,7 +84,11 @@
 
 //Select one for EEPROM,the default is EEPROM emulation on internal flash.
 //#define SRAM_AS_EEPROM /*Use 4K battery backed SRAM, requires a 3V continuous source (like battery) connected to Vbat pin */
-//#define USE_SPI_EEPROM PB0 /*Use M25Qxx SPI flash */
+  #if defined(STM32F407xx)
+    #define USE_SPI_EEPROM PB0 /*Use M25Qxx SPI flash */
+   #else
+    #define USE_SPI_EEPROM PB12 /*Use M25Qxx SPI flash */
+  #endif
 //#define FRAM_AS_EEPROM /*Use FRAM like FM25xxx, MB85RSxxx or any SPI compatible */
 
   #ifndef word
@@ -227,7 +232,7 @@
 #define BIT_STATUS4_BURNPENDING   4
 #define BIT_STATUS4_STAGING_ACTIVE 5
 #define BIT_STATUS4_COMMS_COMPAT  6
-#define BIT_STATUS4_ALLOW_LEGACY_COMMS       7
+#define BIT_STATUS4_UNUSED8       7
 
 #define BIT_AIRCON_REQUEST        0 //Indicates whether the A/C button is pressed
 #define BIT_AIRCON_COMPRESSOR     1 //Indicates whether the A/C compressor is running
@@ -283,7 +288,6 @@
 #define SEC_TRIGGER_SINGLE  0
 #define SEC_TRIGGER_4_1     1
 #define SEC_TRIGGER_POLL    2
-#define SEC_TRIGGER_5_3_2   3
 
 #define ROTARY_IGN_FC       0
 #define ROTARY_IGN_FD       1

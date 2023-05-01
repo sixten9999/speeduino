@@ -173,9 +173,6 @@ void readSDSectors(uint8_t* buffer, uint32_t sectorNumber, uint16_t sectorCount)
   sd.card()->readSectors(sectorNumber, buffer, sectorCount);
 }
 
-// Forward declare
-void writeSDLogHeader();
-
 void beginSDLogging()
 {
   if(SD_status == SD_STATUS_READY)
@@ -219,10 +216,6 @@ void endSDLogging()
     SD_status = SD_STATUS_READY;
   }
 }
-
-// Forward declare
-void checkForSDStart();
-void checkForSDStop();
 
 void writeSDLogEntry()
 {

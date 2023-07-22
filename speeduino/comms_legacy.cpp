@@ -206,24 +206,6 @@ void legacySerialCommand(void)
       Serial.println();
       break;
 
-    case 'O': //Start the composite logger 2nd cam (teritary)
-      startCompositeLoggerTertiary();
-      Serial.write(1); //TS needs an acknowledgement that this was received. I don't know if this is the correct response, but it seems to work
-      break;
-
-    case 'o': //Stop the composite logger 2nd cam (tertiary)
-      stopCompositeLoggerTertiary();
-      break;      
-
-    case 'X': //Start the composite logger 2nd cam (teritary)
-      startCompositeLoggerCams();
-      Serial.write(1); //TS needs an acknowledgement that this was received. I don't know if this is the correct response, but it seems to work
-      break;
-
-    case 'x': //Stop the composite logger 2nd cam (tertiary)
-      stopCompositeLoggerCams();
-      break;  
-
     case 'P': // set the current page
       //This is a legacy function and is no longer used by TunerStudio. It is maintained for compatibility with other systems
       //A 2nd byte of data is required after the 'P' specifying the new page number.
@@ -284,8 +266,8 @@ void legacySerialCommand(void)
       break;
 
     case 'Q': // send code version
-      //Serial.print(F("speeduino 202305"));
-      Serial.print(F("speeduino 202306-dev"));
+      //Serial.print(F("speeduino 202207"));
+      Serial.print(F("speeduino 202307 sixlar1"));
       break;
 
     case 'r': //New format for the optimised OutputChannels
@@ -317,8 +299,8 @@ void legacySerialCommand(void)
       break;
 
     case 'S': // send code version
-      //Serial.print(F("Speeduino 2023.05"));
-      Serial.print(F("Speeduino 2023.06-dev"));
+      //Serial.print(F("Speeduino 2022.07"));
+      Serial.print(F("speeduino 202307 sixlar1"));
       currentStatus.secl = 0; //This is required in TS3 due to its stricter timings
       break;
 
@@ -338,7 +320,7 @@ void legacySerialCommand(void)
         Serial.read(); // First byte of the page identifier can be ignored. It's always 0
 
         if(currentStatus.toothLogEnabled == true) { sendToothLog_legacy(0); } //Sends tooth log values as ints
-        else if (currentStatus.compositeTriggerUsed > 0) { sendCompositeLog_legacy(0); }
+        else if (currentStatus.compositeLogEnabled == true) { sendCompositeLog_legacy(0); }
         serialStatusFlag = SERIAL_INACTIVE;
       }
       break;

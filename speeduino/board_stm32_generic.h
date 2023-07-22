@@ -35,8 +35,12 @@
   #define pinIsReserved(pin)  ( ((pin) == PA11) || ((pin) == PA12) ) //Forbidden pins like USB
 
   #ifndef Serial
+  HardwareSerial Serial1(PA10, PA9);
     #define Serial Serial1
   #endif
+  #if SERIAL_UART_INSTANCE==2
+HardwareSerial Serial1(PA10, PA9);
+#endif
 
   #if defined(FRAM_AS_EEPROM)
     #include <Fram.h>
@@ -69,9 +73,26 @@
     #define A15  PA5
   #endif
 
+#if defined(STM32F401xx)
   #ifndef PB11 //Hack for F4 BlackPills
     #define PB11 PB10
   #endif
+  //Hack to allow compilation on small STM boards
+  #ifndef A10
+    #define A10  PA0
+    #define A11  PA1
+    #define A12  PA2
+    #define A13  PA3
+    #define A14  PA4
+    #define A15  PA5
+  #endif
+#else
+  #ifdef USE_SPI_EEPROM
+    #define pinIsReserved(pin)  ( ((pin) == PA11) || ((pin) == PA12) || ((pin) == PB3) || ((pin) == PB4) || ((pin) == PB5) || ((pin) == USE_SPI_EEPROM) ) //Forbidden pins like USB
+  #else
+    #define pinIsReserved(pin)  ( ((pin) == PA11) || ((pin) == PA12) || ((pin) == PB3) || ((pin) == PB4) || ((pin) == PB5) || ((pin) == PB0) ) //Forbidden pins like USB
+  #endif
+#endif
 #define PWM_FAN_AVAILABLE
 
 /*

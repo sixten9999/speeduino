@@ -627,7 +627,7 @@ uint32_t vssGetPulseGap(byte historyIndex)
 uint16_t getSpeed(void)
 {
   uint16_t tempSpeed = 0;
-  // Get VSS from CAN, Serial or Analog by using Aux input channels.
+// Get VSS from CAN, Serial or Analog by using Aux input channels.
   if(configPage2.vssMode == 1)
   {
     // Direct reading from Aux channel

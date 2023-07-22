@@ -54,7 +54,6 @@ struct table2D oilPressureProtectTable;
 struct table2D wmiAdvTable; //6 bin wmi correction table for timing advance (2D)
 struct table2D coolantProtectTable;
 struct table2D fanPWMTable;
-struct table2D rollingCutTable;
 
 /// volatile inj*_pin_port and  inj*_pin_mask vars are for the direct port manipulation of the injectors, coils and aux outputs.
 volatile PORT_TYPE *inj1_pin_port;
@@ -103,8 +102,6 @@ volatile PORT_TYPE *triggerPri_pin_port;
 volatile PINMASK_TYPE triggerPri_pin_mask;
 volatile PORT_TYPE *triggerSec_pin_port;
 volatile PINMASK_TYPE triggerSec_pin_mask;
-volatile PORT_TYPE *triggerThird_pin_port;
-volatile PINMASK_TYPE triggerThird_pin_mask;
 
 //These are variables used across multiple files
 bool initialisationComplete = false; ///< Tracks whether the setup() function has run completely (true = has run)
@@ -133,6 +130,7 @@ volatile uint16_t ignitionCount; /**< The count of ignition events that have tak
   byte secondaryTriggerEdge;
   byte tertiaryTriggerEdge;
 #endif
+int CRANK_ANGLE_MAX = 720;
 int CRANK_ANGLE_MAX_IGN = 360;
 int CRANK_ANGLE_MAX_INJ = 360; ///< The number of crank degrees that the system track over. 360 for wasted / timed batch and 720 for sequential
 volatile uint32_t runSecsX10;

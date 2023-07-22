@@ -6,7 +6,7 @@
 
 inline uint16_t calculateInjectorStartAngle(uint16_t pwDegrees, int16_t injChannelDegrees, uint16_t injAngle)
 {
-  // 0<=injAngle<=720°
+ // 0<=injAngle<=720°
   // 0<=injChannelDegrees<=720°
   // 0<pwDegrees<=??? (could be many crank rotations in the worst case!)
   // 45<=CRANK_ANGLE_MAX_INJ<=720
@@ -34,11 +34,12 @@ inline uint32_t _calculateInjectorTimeout(const FuelSchedule &schedule, uint16_t
     }
     else
     {
-      return 0;
+        return 0;
     }
-  }
+   
+}
 
-  return ((uint32_t)(delta) * (uint32_t)timePerDegree);
+return ((uint32_t)(delta) * (uint32_t)timePerDegree);
 }
 
 static inline int _adjustToInjChannel(int angle, int channelInjDegrees) {
@@ -82,9 +83,9 @@ inline uint32_t _calculateIgnitionTimeout(const Schedule &schedule, int16_t star
     }
     else
     {
-      return 0;
+        return 0;
     }
-  }
+    }
   return angleToTimeIntervalRev(delta);
 }
 
@@ -100,4 +101,5 @@ inline uint32_t calculateIgnitionTimeout(const Schedule &schedule, int startAngl
       return _calculateIgnitionTimeout(schedule, startAngle, crankAngle);
   }
   return _calculateIgnitionTimeout(schedule, _adjustToIgnChannel(startAngle, channelIgnDegrees), _adjustToIgnChannel(crankAngle, channelIgnDegrees));
+
 }

@@ -292,6 +292,7 @@ bool TS_CommandButtonsHandler(uint16_t buttonCommand)
     //VSS Calibration routines
     case TS_CMD_VSS_60KMH:
       {
+        
         if(configPage2.vssMode == 1)
         {
           //Calculate the ratio of VSS reading from Aux input and actual VSS (assuming that actual VSS is really 60km/h).
